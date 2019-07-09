@@ -12,8 +12,6 @@ key = b'ePSZxc99NH3Ey8i0CM0iGuJ-aC9zjN16d7trdGXBAWs='
 f = Fernet(key)
 
 def main():
-    socket.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, buffer_size)
-
     ip = get_ip()
     print(ip)
 
@@ -65,6 +63,9 @@ class ConnectionThread(threading.Thread):
         self.addr = addr
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         (self.server, self.port, self.path) = server_info(self.data)
+
+        self.client_socket.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, buffer_size)
+        self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, buffer_size)
 
     def run(self):
         if self.server is None:

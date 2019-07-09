@@ -31,6 +31,9 @@ class ConnectionThread(threading.Thread):
         self.addr = addr
         self.proxy_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
+        self.browser_socket.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, buffer_size)
+        self.proxy_socket.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, buffer_size)
+
     def run(self):
         self.proxy_socket.connect((proxy_ip, port))
         token = f.encrypt(self.data)
