@@ -6,7 +6,7 @@ from cryptography.fernet import Fernet
 
 
 port = 9999
-buffer_size = 4096
+buffer_size = 8192
 ip = "127.0.0.1"
 proxy_ip = "45.55.205.253"
 # key = Fernet.generate_key()

@@ -95,6 +95,7 @@ class ConnectionThread(threading.Thread):
                     exit_flag = True
                     continue
                 if sock is self.client_socket:
+                    print(data)
                     data = f.decrypt(data)
                     self.server_socket.send(data)
                 else:
