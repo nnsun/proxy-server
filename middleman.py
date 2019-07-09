@@ -6,7 +6,7 @@ from cryptography.fernet import Fernet
 
 
 port = 9999
-buffer_size = 8192
+buffer_size = 16384
 ip = "127.0.0.1"
 proxy_ip = "45.55.205.253"
 # key = Fernet.generate_key()
@@ -22,7 +22,7 @@ def main():
         data = conn.recv(buffer_size)
         ConnectionThread(conn, data, addr).start()
 
-    
+
 class ConnectionThread(threading.Thread):
     def __init__(self, conn, data, addr):
         super().__init__()
@@ -47,6 +47,7 @@ class ConnectionThread(threading.Thread):
         sockets = [self.browser_socket, self.proxy_socket]
         exit_flag = False
         while not exit_flag:
+            recv_buffer = b''
             (recv, _, error) = select.select(sockets, [], sockets, 5)
             if len(recv) == 0 or error:
                 break
@@ -61,10 +62,16 @@ class ConnectionThread(threading.Thread):
                     self.proxy_socket.send(token)
                 else:
                     print(len(data))
-                    data = f.decrypt(data)
-                    print("to browser:", len(data))
-                    self.browser_socket.send(data)
-
+                    try:
+                        if len(recv_buffer) == 0:
+                            data = f.decrypt(data)
+                        else:
+                            data = f.decrypt(recv_buffer + data)
+                            recv_buffer = b''
+                        print("to browser:", len(data))
+                        self.browser_socket.send(data)
+                    except:
+                        recv_buffer += data
 
 
 if __name__ == "__main__":

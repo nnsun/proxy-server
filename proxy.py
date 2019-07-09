@@ -89,6 +89,7 @@ class ConnectionThread(threading.Thread):
         sockets = [self.client_socket, self.server_socket]
         exit_flag = False
         while not exit_flag:
+            recv_buffer = b''
             (recv, _, error) = select.select(sockets, [], sockets, 5)
             if len(recv) == 0 or error:
                 break
@@ -99,8 +100,15 @@ class ConnectionThread(threading.Thread):
                     continue
                 if sock is self.client_socket:
                     print("received:", len(data))
-                    data = f.decrypt(data)
-                    self.server_socket.send(data)
+                    try:
+                        if len(recv_buffer) == 0:
+                            data = f.decrypt(data)
+                        else:
+                            data = f.decrypt(recv_buffer + data)
+                            recv_buffer = b''
+                        self.server_socket.send(data)
+                    except:
+                        recv_buffer += data
                 else:
                     token = f.encrypt(data)
                     print("sending:", len(token))
