@@ -5,6 +5,7 @@ from cryptography.fernet import Fernet
 
 
 port = 9999
+buffer_size = 4096
 ip = "127.0.0.1"
 proxy_ip = "45.55.205.253"
 # key = Fernet.generate_key()
@@ -35,11 +36,11 @@ class ConnectionThread(threading.Thread):
         self.proxy_socket.send(token)
         self.exchange()
 
-        self.client_socket.close()
+        self.browser_socket.close()
         self.proxy_socket.close()
 
     def exchange(self):
-        sockets = [self.client_socket, self.proxy_socket]
+        sockets = [self.browser_socket, self.proxy_socket]
         exit_flag = False
         while not exit_flag:
             (recv, _, error) = select.select(sockets, [], sockets, 5)
@@ -49,12 +50,12 @@ class ConnectionThread(threading.Thread):
                 data = sock.recv(buffer_size)
                 if len(data) == 0:
                     exit_flag = True
-                if sock is self.client_socket:
+                if sock is self.browser_socket:
                     token = f.encrypt(data)
                     self.proxy_socket.send(token)
                 else:
                     data = f.decrypt(data)
-                    self.client_socket.send(data)
+                    self.browser_socket.send(data)
 
 
 

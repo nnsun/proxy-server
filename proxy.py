@@ -20,9 +20,7 @@ def main():
     proxy_socket.listen(25)
     while True:
         conn, addr = proxy_socket.accept()
-        token = conn.recv(buffer_size)
-        data = f.decrypt(token)
-        print(data)
+        data = conn.recv(buffer_size)
         ConnectionThread(conn, data, addr).start()
 
 
