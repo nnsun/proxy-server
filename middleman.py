@@ -1,3 +1,4 @@
+import select
 import socket
 import threading
 
@@ -50,10 +51,12 @@ class ConnectionThread(threading.Thread):
                 data = sock.recv(buffer_size)
                 if len(data) == 0:
                     exit_flag = True
+                    continue
                 if sock is self.browser_socket:
                     token = f.encrypt(data)
                     self.proxy_socket.send(token)
                 else:
+                    print(data)
                     data = f.decrypt(data)
                     self.browser_socket.send(data)
 

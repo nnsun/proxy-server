@@ -93,6 +93,7 @@ class ConnectionThread(threading.Thread):
                 data = sock.recv(buffer_size)
                 if len(data) == 0:
                     exit_flag = True
+                    continue
                 if sock is self.client_socket:
                     data = f.decrypt(data)
                     self.server_socket.send(data)
