@@ -21,10 +21,9 @@ def main():
     while True:
         conn, addr = proxy_socket.accept()
         token = conn.recv(buffer_size)
-        print(token)
         data = f.decrypt(token)
         print(data)
-        # ConnectionThread(conn, data, addr).start()
+        ConnectionThread(conn, data, addr).start()
 
 
 def server_info(data):
@@ -62,7 +61,7 @@ class ConnectionThread(threading.Thread):
     def __init__(self, conn, data, addr):
         super().__init__()
         self.client_socket = conn
-        self.data = data
+        self.data = f.decrypt(data)
         self.addr = addr
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         (self.server, self.port, self.path) = server_info(self.data)
@@ -74,7 +73,9 @@ class ConnectionThread(threading.Thread):
         self.server_socket.connect((self.server, self.port))
 
         if self.data[:7] == b"CONNECT":
-            self.client_socket.send(b"HTTP/1.0 200 Connection established\r\n\r\n")
+            data = b"HTTP/1.0 200 Connection established\r\n\r\n"
+            token = f.encrypt(data)
+            self.client_socket.send(token)
             self.exchange()
         else:
             self.server_socket.send(self.data)
@@ -95,10 +96,11 @@ class ConnectionThread(threading.Thread):
                 if len(data) == 0:
                     exit_flag = True
                 if sock is self.client_socket:
+                    data = f.decrypt(data)
                     self.server_socket.send(data)
                 else:
-                    print(data)
-                    self.client_socket.send(data)
+                    token = f.encrypt(data)
+                    self.client_socket.send(token)
 
 
 def get_ip():

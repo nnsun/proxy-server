@@ -12,14 +12,12 @@ key = b'ePSZxc99NH3Ey8i0CM0iGuJ-aC9zjN16d7trdGXBAWs='
 f = Fernet(key)
 
 def main():
-    # proxy_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    # proxy_socket.bind((ip, port))
-    # proxy_socket.listen(25)
+    proxy_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    proxy_socket.bind((ip, port))
+    proxy_socket.listen(25)
     while True:
-        # conn, addr = proxy_socket.accept()
-        # data = conn.recv(buffer_size)
-        conn, addr = None, None
-        data = input()
+        conn, addr = proxy_socket.accept()
+        data = conn.recv(buffer_size)
         ConnectionThread(conn, data, addr).start()
 
     
@@ -34,8 +32,29 @@ class ConnectionThread(threading.Thread):
     def run(self):
         self.proxy_socket.connect((proxy_ip, port))
         token = f.encrypt(self.data)
-        print(token)
         self.proxy_socket.send(token)
+        self.exchange()
+
+        self.client_socket.close()
+        self.proxy_socket.close()
+
+    def exchange(self):
+        sockets = [self.client_socket, self.proxy_socket]
+        exit_flag = False
+        while not exit_flag:
+            (recv, _, error) = select.select(sockets, [], sockets, 5)
+            if len(recv) == 0 or error:
+                break
+            for sock in recv:
+                data = sock.recv(buffer_size)
+                if len(data) == 0:
+                    exit_flag = True
+                if sock is self.client_socket:
+                    token = f.encrypt(data)
+                    self.proxy_socket.send(token)
+                else:
+                    data = f.decrypt(data)
+                    self.client_socket.send(data)
 
 
 
