@@ -7,7 +7,7 @@ from cryptography.fernet import Fernet
 
 
 port = 9999
-buffer_size = 8192
+buffer_size = 16384
 key = b'ePSZxc99NH3Ey8i0CM0iGuJ-aC9zjN16d7trdGXBAWs='
 f = Fernet(key)
 
