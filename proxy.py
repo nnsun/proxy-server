@@ -20,7 +20,14 @@ def main():
     proxy_socket.listen(25)
     while True:
         conn, addr = proxy_socket.accept()
-        data = conn.recv(buffer_size)
+        recv_buffer = b''
+        while True:
+            data = conn.recv(buffer_size)
+            try:
+                data = f.decrypt(recv_buffer + data)
+                break
+            except:
+                recv_buffer += data
         ConnectionThread(conn, data, addr).start()
 
 
@@ -59,7 +66,7 @@ class ConnectionThread(threading.Thread):
     def __init__(self, conn, data, addr):
         super().__init__()
         self.client_socket = conn
-        self.data = f.decrypt(data)
+        self.data = data
         self.addr = addr
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         (self.server, self.port, self.path) = server_info(self.data)
