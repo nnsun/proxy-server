@@ -98,11 +98,12 @@ class ConnectionThread(threading.Thread):
                     exit_flag = True
                     continue
                 if sock is self.client_socket:
-                    print(data)
+                    print("received:", len(data))
                     data = f.decrypt(data)
                     self.server_socket.send(data)
                 else:
                     token = f.encrypt(data)
+                    print("sending:", len(token))
                     self.client_socket.send(token)
 
 

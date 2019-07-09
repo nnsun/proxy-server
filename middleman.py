@@ -57,10 +57,12 @@ class ConnectionThread(threading.Thread):
                     continue
                 if sock is self.browser_socket:
                     token = f.encrypt(data)
+                    print("to proxy:", len(token))
                     self.proxy_socket.send(token)
                 else:
                     print(len(data))
                     data = f.decrypt(data)
+                    print("to browser:", len(data))
                     self.browser_socket.send(data)
 
 
