@@ -33,7 +33,8 @@ class ConnectionThread(threading.Thread):
 
     def run(self):
         self.proxy_socket.connect((proxy_ip, port))
-        token = f.encrypt(data)
+        token = f.encrypt(self.data)
+        print(token)
         self.proxy_socket.send(token)
 
 
