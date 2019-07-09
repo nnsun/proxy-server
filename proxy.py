@@ -1,16 +1,19 @@
 import select
 import socket
 import threading
-
 import urllib.request
+
+from cryptography.fernet import Fernet
 
 
 port = 9999
 buffer_size = 4096
+key = b'ePSZxc99NH3Ey8i0CM0iGuJ-aC9zjN16d7trdGXBAWs='
+f = Fernet(key)
 
 def main():
-    # ip = get_ip()
-    ip = "127.0.0.1"
+    ip = get_ip()
+    print(ip)
 
     proxy_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     proxy_socket.bind((ip, port))
@@ -18,7 +21,9 @@ def main():
     while True:
         conn, addr = proxy_socket.accept()
         data = conn.recv(buffer_size)
-        ConnectionThread(conn, data, addr).start()
+        data = f.decrypt(data)
+        print(data)
+        # ConnectionThread(conn, data, addr).start()
 
 
 def server_info(data):
@@ -75,6 +80,7 @@ class ConnectionThread(threading.Thread):
             self.exchange()
 
         self.client_socket.close()
+        self.server_socket.close()
 
     def exchange(self):
         sockets = [self.client_socket, self.server_socket]
@@ -90,6 +96,7 @@ class ConnectionThread(threading.Thread):
                 if sock is self.client_socket:
                     self.server_socket.send(data)
                 else:
+                    print(data)
                     self.client_socket.send(data)
 
 
