@@ -12,6 +12,8 @@ key = b'ePSZxc99NH3Ey8i0CM0iGuJ-aC9zjN16d7trdGXBAWs='
 f = Fernet(key)
 
 def main():
+    socket.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, buffer_size)
+
     ip = get_ip()
     print(ip)
 

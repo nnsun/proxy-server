@@ -56,7 +56,7 @@ class ConnectionThread(threading.Thread):
                     token = f.encrypt(data)
                     self.proxy_socket.send(token)
                 else:
-                    print(data)
+                    print(len(data))
                     data = f.decrypt(data)
                     self.browser_socket.send(data)
 
